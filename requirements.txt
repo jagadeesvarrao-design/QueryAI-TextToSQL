@@ -1,0 +1,21 @@
+streamlit>=1.35.0
+google-generativeai>=0.7.0
+python-dotenv>=1.0.0
+pandas>=2.0.0
+plotly>=5.22.0
+
+# ── Universal DB layer ──────────────────────────────────────────────────────
+sqlalchemy>=2.0.0
+
+# ── DB Connectors (install only what you need) ──────────────────────────────
+# MySQL
+pymysql>=1.1.0
+
+# PostgreSQL
+psycopg2-binary>=2.9.9
+
+# Microsoft SQL Server
+pymssql>=2.3.0
+
+# Oracle SQL
+oracledb>=2.0.0

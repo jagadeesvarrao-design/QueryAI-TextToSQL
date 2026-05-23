@@ -37,163 +37,408 @@ st.set_page_config(
 # ─── CSS ──────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
 
-html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
-    background-color: #080C14;
-    color: #E2E8F0;
+/* ── Universal Reset & Typography ── */
+html, body, [class*="css"], .stMarkdown {
+    font-family: 'Outfit', sans-serif !important;
+    background-color: #030712 !important;
+    color: #E2E8F0 !important;
 }
-.main .block-container { padding: 1.5rem 2.5rem 3rem; max-width: 1400px; }
+.main .block-container { 
+    padding: 2rem 3rem 4rem; 
+    max-width: 1350px; 
+}
 
-/* ── Hero ── */
+/* Background glowing grids/dots */
+.main {
+    background-image: 
+        radial-gradient(at 10% 20%, rgba(0, 242, 254, 0.04) 0px, transparent 50%),
+        radial-gradient(at 90% 80%, rgba(79, 172, 254, 0.05) 0px, transparent 50%),
+        radial-gradient(at 50% 10%, rgba(0, 255, 135, 0.03) 0px, transparent 50%) !important;
+}
+
+/* ── Hero Banner ── */
 .hero {
-    background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
-    border: 1px solid rgba(0,201,167,0.2);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(9, 15, 29, 0.9) 100%) !important;
+    border: 1px solid rgba(0, 242, 254, 0.2);
     border-radius: 24px;
-    padding: 2.2rem 2rem 1.8rem;
-    margin-bottom: 1.5rem;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .hero::before {
     content: '';
     position: absolute;
-    top: -50%; left: -50%;
-    width: 200%; height: 200%;
-    background: radial-gradient(circle at 30% 50%, rgba(0,201,167,0.08) 0%, transparent 60%);
+    top: 0; right: 0;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(0, 242, 254, 0.12) 0%, transparent 70%);
     pointer-events: none;
 }
-.hero h1 { font-size: 2.6rem; font-weight: 800; color: #fff; margin: 0 0 0.3rem; letter-spacing: -1px; }
-.hero h1 span { background: linear-gradient(90deg, #00C9A7, #0066FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.hero p { color: #94A3B8; font-size: 1rem; margin: 0; }
-.hero .badge-row { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.hero h1 { 
+    font-size: 3rem; 
+    font-weight: 800; 
+    color: #fff; 
+    margin: 0 0 0.5rem; 
+    letter-spacing: -1.5px; 
+    line-height: 1.1;
+}
+.hero h1 span { 
+    background: linear-gradient(90deg, #00F2FE, #4FACFE, #00FF87); 
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent; 
+}
+.hero p { 
+    color: #94A3B8; 
+    font-size: 1.1rem; 
+    margin: 0; 
+    font-weight: 400;
+}
+.hero .badge-row { 
+    margin-top: 1.5rem; 
+    display: flex; 
+    gap: 0.6rem; 
+    flex-wrap: wrap; 
+}
 .badge {
-    display: inline-flex; align-items: center; gap: 0.3rem;
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 20px; padding: 0.25rem 0.75rem;
-    font-size: 0.75rem; color: #94A3B8; font-weight: 500;
+    display: inline-flex; 
+    align-items: center; 
+    gap: 0.4rem;
+    background: rgba(15, 23, 42, 0.6); 
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 30px; 
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem; 
+    color: #94A3B8; 
+    font-weight: 600;
+    transition: all 0.2s ease;
 }
-.badge.active { background: rgba(0,201,167,0.15); border-color: rgba(0,201,167,0.4); color: #00C9A7; }
+.badge.active { 
+    background: rgba(0, 242, 254, 0.1); 
+    border-color: rgba(0, 242, 254, 0.3); 
+    color: #00F2FE; 
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.1);
+}
 
-/* ── Connection Panel ── */
+/* ── Connection & UI Panels ── */
 .conn-panel {
-    background: #0F172A;
-    border: 1px solid #1E293B;
-    border-radius: 16px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+    background: rgba(13, 20, 38, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 20px;
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease;
 }
-.conn-panel.connected { border-color: rgba(0,201,167,0.4); }
-.db-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.6rem; margin-bottom: 1rem; }
-.db-card {
-    background: #1E293B; border: 2px solid #2D3748;
-    border-radius: 12px; padding: 0.75rem 0.5rem;
-    text-align: center; cursor: pointer;
-    transition: all 0.2s ease; font-size: 0.8rem; color: #94A3B8;
+.conn-panel.connected { 
+    border: 1px solid rgba(0, 242, 254, 0.25) !important;
+    box-shadow: 0 15px 40px rgba(0, 242, 254, 0.08);
 }
-.db-card:hover { border-color: #00C9A7; color: #00C9A7; transform: translateY(-1px); }
-.db-card.selected { border-color: #00C9A7; background: rgba(0,201,167,0.1); color: #00C9A7; }
-.db-card .db-icon { font-size: 1.6rem; display: block; margin-bottom: 0.3rem; }
 
-/* ── Status badges ── */
+/* Connection status display */
 .status-connected {
-    display: inline-flex; align-items: center; gap: 0.4rem;
-    background: rgba(0,201,167,0.12); color: #00C9A7;
-    border: 1px solid rgba(0,201,167,0.3);
-    border-radius: 8px; padding: 0.3rem 0.8rem; font-size: 0.8rem; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(0, 255, 135, 0.08); color: #00FF87;
+    border: 1px solid rgba(0, 255, 135, 0.25);
+    border-radius: 10px; padding: 0.4rem 1rem; font-size: 0.85rem; font-weight: 600;
+    box-shadow: 0 0 15px rgba(0, 255, 135, 0.05);
 }
 .status-disconnected {
-    display: inline-flex; align-items: center; gap: 0.4rem;
-    background: rgba(239,68,68,0.1); color: #F87171;
-    border: 1px solid rgba(239,68,68,0.3);
-    border-radius: 8px; padding: 0.3rem 0.8rem; font-size: 0.8rem; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(239, 68, 68, 0.08); color: #F87171;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 10px; padding: 0.4rem 1rem; font-size: 0.85rem; font-weight: 600;
 }
 
-/* ── Inputs ── */
-.stTextInput input, .stNumberInput input, .stSelectbox select {
-    background: #1E293B !important; color: #E2E8F0 !important;
-    border: 1px solid #2D3748 !important; border-radius: 8px !important;
+/* ── Inputs & Selectboxes ── */
+div[data-baseweb="select"] > div {
+    background-color: #0B0F19 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 10px !important;
+    color: #E2E8F0 !important;
 }
-.stTextInput input:focus { border-color: #00C9A7 !important; }
+.stTextInput input, .stNumberInput input {
+    background-color: #0B0F19 !important;
+    color: #E2E8F0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 10px !important;
+    padding: 0.55rem 0.75rem !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease !important;
+}
+.stTextInput input:focus, .stNumberInput input:focus, div[data-baseweb="select"]:focus-within {
+    border-color: #00F2FE !important;
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.15) !important;
+}
 .stTextArea textarea {
-    background: #0F172A !important; color: #E2E8F0 !important;
-    border: 2px solid #1E293B !important; border-radius: 12px !important;
-    font-size: 1rem !important; padding: 1rem !important;
+    background-color: #080C16 !important;
+    color: #E0F2FE !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    font-size: 1.05rem !important;
+    padding: 1.2rem !important;
+    transition: all 0.2s ease !important;
+    line-height: 1.5 !important;
 }
-.stTextArea textarea:focus { border-color: #00C9A7 !important; box-shadow: 0 0 0 3px rgba(0,201,167,0.1) !important; }
+.stTextArea textarea:focus {
+    border-color: #00F2FE !important;
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.2) !important;
+}
 
 /* ── Buttons ── */
 .stButton > button {
-    background: linear-gradient(135deg, #00C9A7, #0066FF) !important;
-    color: #fff !important; border: none !important;
-    border-radius: 10px !important; font-weight: 600 !important;
-    padding: 0.6rem 1.5rem !important; transition: all 0.2s !important;
-    box-shadow: 0 4px 15px rgba(0,102,255,0.25) !important;
+    background: linear-gradient(135deg, #00F2FE 0%, #4FACFE 50%, #00FF87 100%) !important;
+    color: #030712 !important; 
+    border: none !important;
+    border-radius: 12px !important; 
+    font-weight: 700 !important;
+    padding: 0.7rem 1.8rem !important; 
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 0 4px 20px rgba(0, 242, 254, 0.3) !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+    font-size: 0.85rem !important;
 }
-.stButton > button:hover { transform: translateY(-2px) !important; box-shadow: 0 6px 20px rgba(0,201,167,0.35) !important; }
+.stButton > button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 30px rgba(0, 242, 254, 0.45), 0 0 10px rgba(0, 255, 135, 0.2) !important;
+    color: #030712 !important;
+}
+.stButton > button:active {
+    transform: translateY(0px) !important;
+}
 
-/* ── Section label ── */
+/* Disconnect button styling (override gradient) */
+div.element-container:has(button[key="disconnect_btn"]) button,
+button[key*="disconnect"] {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    color: #F87171 !important;
+    box-shadow: none !important;
+    text-transform: none !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+}
+div.element-container:has(button[key="disconnect_btn"]) button:hover,
+button[key*="disconnect"]:hover {
+    background: rgba(239, 68, 68, 0.15) !important;
+    border-color: #F87171 !important;
+    color: #fff !important;
+}
+
+/* ── Section labels ── */
 .section-label {
-    font-size: 0.7rem; font-weight: 700; color: #475569;
-    text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.6rem;
+    font-size: 0.72rem; 
+    font-weight: 800; 
+    color: #4B5563;
+    text-transform: uppercase; 
+    letter-spacing: 2px; 
+    margin-bottom: 0.75rem;
+    margin-top: 0.5rem;
 }
 
-/* ── Sample Qs ── */
-.sample-q { margin-bottom: 0.4rem; }
+/* ── Sidebar Styling ── */
+[data-testid="stSidebar"] {
+    background-color: #02040A !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
 
-/* ── Metric row ── */
-.metric-row { display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap; }
+/* Sidebar navigation radios */
+div[data-testid="stSidebar"] div.stRadio > label {
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #475569;
+}
+div[data-testid="stSidebar"] div.stRadio div[role="radiogroup"] {
+    gap: 8px;
+}
+div[data-testid="stSidebar"] div.stRadio div[role="radiogroup"] label {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    padding: 0.6rem 0.8rem !important;
+    border-radius: 10px !important;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+div[data-testid="stSidebar"] div.stRadio div[role="radiogroup"] label:hover {
+    background: rgba(0, 242, 254, 0.05) !important;
+    border-color: rgba(0, 242, 254, 0.2) !important;
+}
+div[data-testid="stSidebar"] div.stRadio div[role="radiogroup"] div[data-checked="true"] label {
+    background: rgba(0, 242, 254, 0.08) !important;
+    border-color: #00F2FE !important;
+    color: #00F2FE !important;
+}
+
+/* ── Expander Panels ── */
+.streamlit-expanderHeader {
+    background-color: #0B0F19 !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 12px !important;
+    color: #E2E8F0 !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease !important;
+}
+.streamlit-expanderHeader:hover {
+    border-color: rgba(0, 242, 254, 0.3) !important;
+    color: #00F2FE !important;
+}
+.streamlit-expanderContent {
+    background-color: rgba(11, 15, 25, 0.4) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.04) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+    border-radius: 0 0 12px 12px !important;
+    padding: 1.25rem !important;
+}
+
+/* ── Metric Cards ── */
+.metric-row { 
+    display: flex; 
+    gap: 1.25rem; 
+    margin: 1.5rem 0; 
+    flex-wrap: wrap; 
+}
 .metric-card {
-    flex: 1; min-width: 110px;
-    background: #0F172A; border: 1px solid #1E293B;
-    border-radius: 12px; padding: 1rem; text-align: center;
+    flex: 1; 
+    min-width: 120px;
+    background: rgba(13, 20, 38, 0.65) !important; 
+    border: 1px solid rgba(0, 242, 254, 0.15) !important;
+    border-radius: 16px; 
+    padding: 1.25rem 1rem; 
+    text-align: center;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
 }
-.metric-card .mv { font-size: 1.8rem; font-weight: 700; color: #00C9A7; }
-.metric-card .ml { font-size: 0.75rem; color: #475569; margin-top: 0.2rem; }
+.metric-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0, 242, 254, 0.4) !important;
+    box-shadow: 0 12px 30px rgba(0, 242, 254, 0.1);
+}
+.metric-card .mv { 
+    font-size: 2.2rem; 
+    font-weight: 800; 
+    color: #00F2FE; 
+    background: linear-gradient(90deg, #00F2FE, #00FF87);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+}
+.metric-card .ml { 
+    font-size: 0.78rem; 
+    color: #64748B; 
+    margin-top: 0.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
 
-/* ── SQL card ── */
+/* ── SQL View Cards ── */
 .sql-card {
-    background: #0A0F1A; border: 1px solid rgba(0,201,167,0.25);
-    border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;
+    background: #040810 !important; 
+    border: 1px solid rgba(0, 242, 254, 0.2) !important;
+    border-left: 4px solid #00F2FE !important;
+    border-radius: 12px; 
+    padding: 1.5rem; 
+    margin-bottom: 1.25rem;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+}
+.sql-card pre {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 0.95rem !important;
+    color: #00FF87 !important;
+    margin: 0;
 }
 
-/* ── Error box ── */
-.error-box {
-    background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3);
-    border-radius: 10px; padding: 1rem; color: #F87171;
+/* ── Tabs Restyling ── */
+.stTabs [data-baseweb="tab-list"] { 
+    background: #0B0F19 !important; 
+    border-radius: 14px; 
+    padding: 6px; 
+    gap: 6px; 
+    border: 1px solid rgba(255,255,255,0.03) !important;
+}
+.stTabs [data-baseweb="tab"] { 
+    background: transparent !important; 
+    color: #64748B !important; 
+    border-radius: 10px !important; 
+    font-weight: 600 !important;
+    padding: 0.6rem 1.2rem !important;
+    transition: all 0.2s ease !important;
+    border: none !important;
+}
+.stTabs [data-baseweb="tab"]:hover {
+    color: #E2E8F0 !important;
+}
+.stTabs [aria-selected="true"] { 
+    background: rgba(0, 242, 254, 0.08) !important; 
+    color: #00F2FE !important; 
+    border: 1px solid rgba(0, 242, 254, 0.2) !important;
 }
 
-/* ── History ── */
+/* ── History Panel ── */
 .hist-item {
-    background: #0F172A; border-left: 3px solid #00C9A7;
-    border-radius: 0 8px 8px 0; padding: 0.45rem 0.7rem;
-    margin-bottom: 0.4rem; font-size: 0.82rem; color: #94A3B8;
+    background: rgba(15, 23, 42, 0.3); 
+    border: 1px solid rgba(255,255,255,0.02);
+    border-left: 3px solid #00F2FE;
+    border-radius: 0 10px 10px 0; 
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.5rem; 
+    font-size: 0.82rem; 
+    color: #94A3B8;
+    transition: all 0.2s ease;
+}
+.hist-item:hover {
+    background: rgba(0, 242, 254, 0.04);
+    border-color: rgba(0, 242, 254, 0.1);
+    border-left-color: #00FF87;
+    color: #E2E8F0;
 }
 
-/* ── Tabs ── */
-.stTabs [data-baseweb="tab-list"] { background: #0F172A; border-radius: 10px; padding: 4px; gap: 4px; }
-.stTabs [data-baseweb="tab"] { background: transparent; color: #64748B; border-radius: 8px; font-weight: 500; }
-.stTabs [aria-selected="true"] { background: #1E293B !important; color: #00C9A7 !important; }
+/* ── File Uploader ── */
+[data-testid="stFileUploader"] { 
+    background: rgba(11, 15, 25, 0.5); 
+    border: 2px dashed rgba(0, 242, 254, 0.25); 
+    border-radius: 16px; 
+    padding: 1.5rem; 
+    transition: all 0.2s ease;
+}
+[data-testid="stFileUploader"]:hover {
+    border-color: #00F2FE;
+    background: rgba(0, 242, 254, 0.02);
+}
 
-/* ── File uploader ── */
-.stFileUploader { background: #0F172A; border-radius: 12px; }
-[data-testid="stFileUploader"] { background: #0F172A; border: 2px dashed #2D3748; border-radius: 12px; padding: 1rem; }
+/* ── Errors and Info ── */
+.error-box {
+    background: rgba(239, 68, 68, 0.06) !important; 
+    border: 1px solid rgba(239, 68, 68, 0.25) !important;
+    border-left: 4px solid #EF4444 !important;
+    border-radius: 12px; 
+    padding: 1.25rem; 
+    color: #FCA5A5;
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
 
-/* ── Sidebar ── */
-[data-testid="stSidebar"] { background: #080C14 !important; border-right: 1px solid #1E293B; }
-
-/* ── Schema expander ── */
-.streamlit-expanderHeader { background: #0F172A !important; color: #94A3B8 !important; border-radius: 8px !important; }
-
-/* ── Hide streamlit UI chrome ── */
+/* Hide default streamlit indicators */
 #MainMenu, footer, header { visibility: hidden; }
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #0F172A; }
-::-webkit-scrollbar-thumb { background: #2D3748; border-radius: 3px; }
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #030712; }
+::-webkit-scrollbar-thumb { background: #1F2937; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #374151; }
 </style>
 """, unsafe_allow_html=True)
 

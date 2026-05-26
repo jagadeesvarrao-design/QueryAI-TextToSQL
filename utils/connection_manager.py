@@ -130,6 +130,15 @@ def build_engine(config: ConnectionConfig):
                 port=config.port,
                 database=config.database,
             )
+
+            # Append advanced connection parameters if specified
+            if config.extra_params:
+                clean_params = config.extra_params.lstrip("?").lstrip("&")
+                if "?" in url:
+                    url = f"{url}&{clean_params}"
+                else:
+                    url = f"{url}?{clean_params}"
+
             engine = create_engine(url, pool_pre_ping=True, pool_size=3, max_overflow=5)
 
         # Test connection

@@ -55,11 +55,11 @@ def _get_model(model_name: str = None):
     )
 
 
-SYSTEM_PROMPT = """You are an expert SQL assistant. Your job is to convert natural language questions into valid SQLite SQL queries.
+SYSTEM_PROMPT = """You are an expert SQL assistant. Your job is to convert natural language questions into valid {dialect} SQL queries.
 
 Rules:
 1. Only output the raw SQL query — no explanations, no markdown, no code blocks.
-2. The query MUST be valid SQLite syntax.
+2. The query MUST be valid {dialect} syntax. Use appropriate dialect-specific syntax (e.g. date/time functions, string concatenation, limit/offset, etc.) that matches {dialect}.
 3. Use only the tables and columns provided in the schema below.
 4. Use JOINs when needed to combine data across tables.
 5. For aggregation questions, use GROUP BY with appropriate aggregate functions (COUNT, SUM, AVG, MAX, MIN).
@@ -72,7 +72,7 @@ Database Schema:
 """
 
 
-def generate_sql(user_question: str, schema: str, model_name: str = None) -> tuple[str, str, str]:
+def generate_sql(user_question: str, schema: str, dialect: str = "SQLite", model_name: str = None) -> tuple[str, str, str]:
     """
     Convert a natural language question to SQL using Gemini.
     
@@ -83,7 +83,7 @@ def generate_sql(user_question: str, schema: str, model_name: str = None) -> tup
     """
     try:
         model, used_model = _get_model(model_name)
-        prompt = SYSTEM_PROMPT.format(schema=schema) + f"\n\nUser Question: {user_question}"
+        prompt = SYSTEM_PROMPT.format(dialect=dialect, schema=schema) + f"\n\nUser Question: {user_question}"
         
         response = model.generate_content(prompt)
         raw_output = response.text.strip()

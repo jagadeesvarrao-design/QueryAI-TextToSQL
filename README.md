@@ -1,151 +1,131 @@
-# 🏥 MediQuery AI — Text-to-SQL Data Analyst
+# 🧠 QueryAI — Universal Text-to-SQL AI Data Analyst
 
-> **Ask hospital data questions in plain English. AI converts them to SQL and shows results instantly.**
+> **Talk to your database in plain English. Powered by Google Gemini, SQLAlchemy, and Streamlit.**
 
-[![Python](https://img.shields.io/badge/Python-3.10+-blue)](https://python.org)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.35+-red)](https://streamlit.io)
-[![Gemini](https://img.shields.io/badge/Gemini-2.5_Flash_/_2.0_Flash-green)](https://aistudio.google.com)
-[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
-
----
-
-## 🚀 What This Project Does
-
-MediQuery AI is a **Generative AI-powered web application** that lets you interact with a hospital database using natural language — no SQL knowledge required.
-
-**Example:** You type `"Which doctor has the highest number of appointments?"` → AI generates SQL → Results + chart appear instantly.
-
-## ✨ Features
-
-- 🤖 **Natural Language → SQL** using Google Gemini API (2.5 Flash, 2.0 Flash, 2.0 Flash Lite, 2.5 Pro)
-- 📊 **Auto-generated charts** (bar, line, histogram) from query results
-- 🏥 **Hospital Database** with 150 patients, 20 doctors, 300 appointments
-- 💡 **10 sample questions** to get started instantly
-- 🕐 **Query history** panel in sidebar
-- ⬇️ **CSV download** for any query result
-- 🧠 **SQL transparency** — always shows the generated SQL
-- 🌙 **Beautiful dark UI** with glassmorphism design
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python&logoColor=white)](https://python.org)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.35%2B-ff4b4b.svg?logo=streamlit&logoColor=white)](https://streamlit.io)
+[![Gemini](https://img.shields.io/badge/Google_Gemini-2.5_Flash_/_2.5_Pro-blueviolet.svg?logo=google-gemini&logoColor=white)](https://aistudio.google.com)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0%2B-red.svg?logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## 🗃️ Database Schema
+**QueryAI** is an advanced Generative AI-powered web application that acts as a natural language interface for databases. It enables non-technical users to query database servers, upload CSV data, or analyze pre-seeded mock records by typing questions in plain English—no SQL knowledge required.
 
+QueryAI dynamically parses active schemas, translates human queries into optimized database-specific dialect statements (SQLite, MySQL, PostgreSQL, MS SQL Server, or Oracle SQL), executes them safely, displays interactive tabular results, and automatically determines and styles beautiful Plotly visualizations matching a premium dark glassmorphism dashboard theme.
+
+---
+
+## ✨ Outstanding Features
+
+- 🤖 **Universal Text-to-SQL**: Auto-detects the active database dialect (MySQL, PostgreSQL, MS SQL, Oracle, SQLite) and structures the translation context accordingly.
+- 📊 **Smart Auto-Visualization**: Intelligently inspects query result sets to choose, build, and style Plotly graphs (Bar, Line, Histograms, or Frequency Count charts).
+- 📄 **Dynamic CSV Uploads**: Drag and drop multiple CSV sheets to instantly query them as virtual relational tables in-memory.
+- 🏥 **Out-of-the-Box Demo**: Instantly provisions a mock hospital database with 150 patients, 20 doctors, and 300 appointments to experience the app in 1 click.
+- 🔌 **Secure Connection Manager**: Supports custom connection parameters (e.g. SSL rules like `TrustServerCertificate=yes` or `sslmode=require`).
+- 🤖 **AI Model Resiliency**: Multi-model fallback configuration (`gemini-2.5-flash`, `gemini-2.0-flash-lite`, `gemini-2.5-pro`) to ensure high availability.
+- 🕐 **Analyst Audit Trace**: Transparently displays generated SQL alongside latency logs, row counts, and detailed column type schemas.
+
+---
+
+## 🏗️ Architecture & Processing Lifecycle
+
+```mermaid
+graph TD
+    User([User English Question]) --> UI[Streamlit Frontend]
+    UI --> LLM[utils/llm_handler.py]
+    LLM -->|Prompt Injection| Gemini[Google Gemini API]
+    
+    %% Context feeding
+    Schema[Schema Extractor] -.->|Inject Schema Context| Gemini
+    DbConn[(Target Database)] -->|Reflect Schema| Schema
+    
+    Gemini -->|Returns Raw SQL| LLM
+    LLM -->|Clean SQL| UI
+    UI --> DB[utils/connection_manager.py]
+    DB -->|Execute SQL| DbConn
+    DbConn -->|Retrieve Data| DB
+    DB -->|Pandas DataFrame| UI
+    
+    %% Visual outputs
+    UI --> Table[Interactive Data Table]
+    UI --> Chart[Plotly Auto-Visualization]
 ```
-patients       → patient_id, name, age, gender, blood_type, city
-doctors        → doctor_id, name, specialization, experience_years, fee
-appointments   → appt_id, patient_id, doctor_id, date, status, diagnosis
-prescriptions  → pres_id, appt_id, medicine, dosage, duration_days
-billing        → bill_id, appt_id, amount, payment_method, paid_date
-```
 
 ---
 
-## ⚙️ Setup & Installation
+## 🗃️ Supported Databases
 
-### 1. Clone the repository
+| Engine | Driver Package | Default Port | Connection URL Format |
+| :--- | :--- | :--- | :--- |
+| **🏥 Demo SQLite** | *None (Built-in)* | *None* | `sqlite:///database/hospital.db` |
+| **📄 CSV Upload** | *None (Pandas)* | *None* | `sqlite:///:memory:` |
+| **📁 SQLite File** | *None (Built-in)* | *None* | `sqlite:///path/to/database.db` |
+| **🐬 MySQL** | `pymysql` | `3306` | `mysql+pymysql://user:pass@host:port/database` |
+| **🐘 PostgreSQL** | `psycopg2-binary` | `5432` | `postgresql+psycopg2://user:pass@host:port/database` |
+| **🪟 SQL Server** | `pymssql` | `1433` | `mssql+pymssql://user:pass@host:port/database` |
+| **🔴 Oracle SQL** | `oracledb` | `1521` | `oracle+oracledb://user:pass@host:port/database` |
+
+---
+
+## 🚀 Setup & Installation
+
+### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/text-to-sql.git
-cd text-to-sql
+git clone https://github.com/yourusername/QueryAI-TextToSQL.git
+cd QueryAI-TextToSQL
 ```
 
-### 2. Install dependencies
+### 2. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Get your FREE Gemini API key
+### 3. Get your Google Gemini API Key
 1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
 2. Click **Create API Key**
 3. Copy the key
 
-### 4. Create your `.env` file
+### 4. Create your `.env` File
 ```bash
 cp .env.example .env
 ```
-Open `.env` and replace `your_gemini_api_key_here` with your actual key.
+Open `.env` and assign your actual key:
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+```
 
-### 5. Run the app
+### 5. Launch the Application
 ```bash
 streamlit run app.py
 ```
-
-The app automatically creates the hospital database on first run! 🎉
-
----
-
-## 💬 Example Questions to Try
-
-| Question | What it shows |
-|---|---|
-| Which doctor has the most appointments? | Doctor performance ranking |
-| Show total revenue by payment method | Payment analytics |
-| List all patients diagnosed with Diabetes | Diagnosis filtering |
-| What is the average billing amount per specialization? | Financial insights |
-| How many male vs female patients? | Demographics |
-| Top 5 most prescribed medicines | Prescription analytics |
-| Which city has the most patients? | Geographic distribution |
-| Show patients older than 60 | Age filtering with conditions |
+The app will automatically compile the local hospital database on first run and launch the browser panel! 🎉
 
 ---
 
-## 🏗️ Architecture
+## 🧪 Comprehensive Verification Tests
 
+The repository is equipped with two testing modules to validate all components under different environments:
+
+### 1. Unit & Module Integration Tests
+Verifies local database builds, column mapping schemas, in-memory CSV connections, and Plotly layout generators:
+```bash
+python test_all.py
 ```
-User Question (plain English)
-        ↓
-[Gemini API (Dynamic Selection)] ← Database Schema Context
-        ↓
-   SQL Query
-        ↓
-  [SQLite DB] → hospital.db
-        ↓
- Pandas DataFrame
-        ↓
-[Streamlit UI] → Table + Plotly Chart
+
+### 2. End-to-End Simulation Tests
+Mocks the Streamlit framework to virtually test session states, database selector resets, and dialect-specific translation prompts:
+```bash
+python test_website_flow.py
 ```
 
 ---
 
-## 🛠️ Tech Stack
-
-| Component | Technology |
-|---|---|
-| AI / LLM | Google Gemini API (2.5 Flash / 2.0 Flash / 2.0 Flash Lite / 2.5 Pro) |
-| Web Framework | Streamlit |
-| Database | SQLite |
-| Data Processing | Pandas |
-| Visualization | Plotly Express |
-| Environment | python-dotenv |
+## 📖 Setup Walkthrough Reference
+For step-by-step credentials setups, SSL configurations, driver installation checklists, and firewalls troubleshooting for each database engine, view the walkthrough guide:
+* 📁 [Database Setup Walkthrough](database_setup_walkthrough.md)
 
 ---
-
-## 📁 Project Structure
-
-```
-text-to-sql/
-├── app.py                  ← Main Streamlit application
-├── requirements.txt        ← Python dependencies
-├── .env.example            ← API key template
-├── README.md               ← This file
-├── database/
-│   ├── setup_db.py         ← Database creation & seeding
-│   └── hospital.db         ← SQLite database (auto-created)
-└── utils/
-    ├── db_handler.py       ← DB connection & query execution
-    ├── llm_handler.py      ← Gemini API integration
-    └── visualizer.py       ← Auto-chart generation
-```
-
----
-
-## 🌟 Resume Highlight
-
-> *"Built an AI-powered Text-to-SQL interface using Google Gemini that converts natural language queries to SQL, enabling non-technical users to analyze any connected database (SQLite, MySQL, PostgreSQL, MSSQL, Oracle, or CSV). Deployed as an interactive Streamlit web app with real-time visualization and dynamic model switching."*
-
----
-
-## 🤝 Contributing
-Pull requests are welcome! For major changes, please open an issue first.
 
 ## 📄 License
-MIT License — feel free to use this project in your portfolio!
+This project is licensed under the MIT License — feel free to use it in your portfolio or modify it for your own systems!

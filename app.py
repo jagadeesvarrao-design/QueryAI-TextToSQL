@@ -863,8 +863,8 @@ panel_class = "conn-panel connected" if st.session_state.connected else "conn-pa
 st.markdown(f'<div class="{panel_class}">', unsafe_allow_html=True)
 
 with st.expander(
-    "🔌 **Database Connection** — Click to connect to MySQL, PostgreSQL, MSSQL, Oracle, SQLite, or CSV",
-    expanded=not st.session_state.connected
+    "🔌 **Database Connection** — Connect to MySQL, PostgreSQL, MSSQL, Oracle, SQLite, or CSV",
+    expanded=True
 ):
     # ── DB Type Selector ──
     db_types = list(DB_CONFIGS.keys())
@@ -876,6 +876,15 @@ with st.expander(
         key="db_type_selector"
     )
     db_info = DB_CONFIGS[selected_db]
+
+    # Reset default port when database type changes (resolves Streamlit's state persistence bug)
+    if "last_selected_db" not in st.session_state:
+        st.session_state.last_selected_db = selected_db
+    if st.session_state.last_selected_db != selected_db:
+        new_default_port = db_info.get("default_port")
+        if new_default_port is not None:
+            st.session_state["db_port"] = new_default_port
+        st.session_state.last_selected_db = selected_db
 
     # Show description
     st.markdown(
@@ -1109,9 +1118,18 @@ if run_btn and user_question.strip():
     question = user_question.strip()
     with st.spinner("🤖 Gemini is generating SQL..."):
         t0 = time.time()
+        # Dynamically determine the active database SQL dialect
+        if st.session_state.active_db_type == "📄 CSV Upload":
+            active_dialect = "SQLite"
+        elif st.session_state.engine:
+            active_dialect = get_dialect_name(st.session_state.engine)
+        else:
+            active_dialect = "SQLite"
+
         sql, used_model, llm_err = generate_sql(
             question, 
             st.session_state.schema_str, 
+            dialect=active_dialect,
             model_name=st.session_state.get("selected_model")
         )
         gen_time = round(time.time() - t0, 2)

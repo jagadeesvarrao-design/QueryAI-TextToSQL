@@ -34,7 +34,7 @@ def auto_visualize(df: pd.DataFrame, question: str = ""):
                 df.head(20), x=y_col, y=x_col, orientation="h",
                 title=chart_title,
                 color=y_col,
-                color_continuous_scale="Teal",
+                color_continuous_scale="emrld",
                 labels={x_col: x_col.replace("_", " ").title(),
                         y_col: y_col.replace("_", " ").title()}
             )
@@ -43,7 +43,7 @@ def auto_visualize(df: pd.DataFrame, question: str = ""):
                 df, x=x_col, y=y_col,
                 title=chart_title,
                 color=y_col,
-                color_continuous_scale="Teal",
+                color_continuous_scale="emrld",
                 labels={x_col: x_col.replace("_", " ").title(),
                         y_col: y_col.replace("_", " ").title()}
             )
@@ -61,7 +61,7 @@ def auto_visualize(df: pd.DataFrame, question: str = ""):
         fig = px.histogram(
             df, x=numeric_cols[0],
             title=chart_title,
-            color_discrete_sequence=["#00C9A7"]
+            color_discrete_sequence=["#10B981"]
         )
         fig = _style_chart(fig)
         return fig
@@ -75,7 +75,7 @@ def auto_visualize(df: pd.DataFrame, question: str = ""):
             counts, x=x_col, y="count",
             title=chart_title,
             color="count",
-            color_continuous_scale="Teal"
+            color_continuous_scale="emrld"
         )
         fig = _style_chart(fig)
         return fig
@@ -86,15 +86,15 @@ def auto_visualize(df: pd.DataFrame, question: str = ""):
 def _style_chart(fig):
     """Apply consistent dark theme styling to all charts."""
     fig.update_layout(
-        paper_bgcolor="#0E1117",
-        plot_bgcolor="#0E1117",
-        font=dict(color="#FAFAFA", family="Inter, sans-serif", size=13),
-        title_font=dict(size=18, color="#00C9A7"),
-        xaxis=dict(gridcolor="#2D3748", tickfont=dict(color="#A0AEC0")),
-        yaxis=dict(gridcolor="#2D3748", tickfont=dict(color="#A0AEC0")),
+        paper_bgcolor="#050508",
+        plot_bgcolor="#050508",
+        font=dict(color="#E2E8F0", family="Inter, sans-serif", size=13),
+        title_font=dict(size=18, color="#10B981"),
+        xaxis=dict(gridcolor="#1F2937", tickfont=dict(color="#94A3B8")),
+        yaxis=dict(gridcolor="#1F2937", tickfont=dict(color="#94A3B8")),
         coloraxis_showscale=False,
         margin=dict(l=40, r=40, t=60, b=40),
-        hoverlabel=dict(bgcolor="#1A202C", font_color="#FAFAFA"),
+        hoverlabel=dict(bgcolor="#0D0E12", font_color="#E2E8F0"),
     )
     return fig
 

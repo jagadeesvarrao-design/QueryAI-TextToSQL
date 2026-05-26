@@ -42,7 +42,7 @@ st.markdown("""
 /* ── Universal Reset & Typography ── */
 html, body, [class*="css"], .stMarkdown {
     font-family: 'Outfit', sans-serif !important;
-    background-color: #030712 !important;
+    background-color: #050508 !important;
     color: #E2E8F0 !important;
 }
 .main .block-container { 
@@ -53,15 +53,15 @@ html, body, [class*="css"], .stMarkdown {
 /* Background glowing grids/dots */
 .main {
     background-image: 
-        radial-gradient(at 10% 20%, rgba(0, 242, 254, 0.04) 0px, transparent 50%),
-        radial-gradient(at 90% 80%, rgba(79, 172, 254, 0.05) 0px, transparent 50%),
-        radial-gradient(at 50% 10%, rgba(0, 255, 135, 0.03) 0px, transparent 50%) !important;
+        radial-gradient(at 10% 20%, rgba(16, 185, 129, 0.01) 0px, transparent 50%),
+        radial-gradient(at 90% 80%, rgba(5, 150, 105, 0.02) 0px, transparent 50%),
+        radial-gradient(at 50% 10%, rgba(16, 185, 129, 0.01) 0px, transparent 50%) !important;
 }
 
 /* ── Hero Banner ── */
 .hero {
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(9, 15, 29, 0.9) 100%) !important;
-    border: 1px solid rgba(0, 242, 254, 0.2);
+    background: linear-gradient(135deg, rgba(9, 10, 15, 0.9) 0%, rgba(5, 5, 8, 0.95) 100%) !important;
+    border: 1px solid rgba(16, 185, 129, 0.12);
     border-radius: 24px;
     padding: 2.5rem;
     margin-bottom: 2rem;
@@ -69,14 +69,14 @@ html, body, [class*="css"], .stMarkdown {
     overflow: hidden;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 .hero::before {
     content: '';
     position: absolute;
     top: 0; right: 0;
     width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(0, 242, 254, 0.12) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
     pointer-events: none;
 }
 .hero h1 { 
@@ -88,7 +88,7 @@ html, body, [class*="css"], .stMarkdown {
     line-height: 1.1;
 }
 .hero h1 span { 
-    background: linear-gradient(90deg, #00F2FE, #4FACFE, #00FF87); 
+    background: linear-gradient(90deg, #10B981, #059669, #00F6A5); 
     -webkit-background-clip: text; 
     -webkit-text-fill-color: transparent; 
 }
@@ -108,8 +108,8 @@ html, body, [class*="css"], .stMarkdown {
     display: inline-flex; 
     align-items: center; 
     gap: 0.4rem;
-    background: rgba(15, 23, 42, 0.6); 
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(10, 10, 14, 0.6); 
+    border: 1px solid rgba(255, 255, 255, 0.04);
     border-radius: 30px; 
     padding: 0.4rem 1rem;
     font-size: 0.8rem; 
@@ -118,36 +118,36 @@ html, body, [class*="css"], .stMarkdown {
     transition: all 0.2s ease;
 }
 .badge.active { 
-    background: rgba(0, 242, 254, 0.1); 
-    border-color: rgba(0, 242, 254, 0.3); 
-    color: #00F2FE; 
-    box-shadow: 0 0 15px rgba(0, 242, 254, 0.1);
+    background: rgba(16, 185, 129, 0.08); 
+    border-color: rgba(16, 185, 129, 0.25); 
+    color: #10B981; 
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.08);
 }
 
 /* ── Connection & UI Panels ── */
 .conn-panel {
-    background: rgba(13, 20, 38, 0.5) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: rgba(8, 8, 12, 0.55) !important;
+    border: 1px solid rgba(255, 255, 255, 0.03) !important;
     border-radius: 20px;
     padding: 1.75rem;
     margin-bottom: 2rem;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     transition: all 0.3s ease;
 }
 .conn-panel.connected { 
-    border: 1px solid rgba(0, 242, 254, 0.25) !important;
-    box-shadow: 0 15px 40px rgba(0, 242, 254, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2) !important;
+    box-shadow: 0 15px 40px rgba(16, 185, 129, 0.06);
 }
 
 /* Connection status display */
 .status-connected {
     display: inline-flex; align-items: center; gap: 0.5rem;
-    background: rgba(0, 255, 135, 0.08); color: #00FF87;
-    border: 1px solid rgba(0, 255, 135, 0.25);
+    background: rgba(16, 185, 129, 0.08); color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.25);
     border-radius: 10px; padding: 0.4rem 1rem; font-size: 0.85rem; font-weight: 600;
-    box-shadow: 0 0 15px rgba(0, 255, 135, 0.05);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.04);
 }
 .status-disconnected {
     display: inline-flex; align-items: center; gap: 0.5rem;
@@ -158,28 +158,28 @@ html, body, [class*="css"], .stMarkdown {
 
 /* ── Inputs & Selectboxes ── */
 div[data-baseweb="select"] > div {
-    background-color: #0B0F19 !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background-color: #06060A !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
     border-radius: 10px !important;
     color: #E2E8F0 !important;
 }
 .stTextInput input, .stNumberInput input {
-    background-color: #0B0F19 !important;
+    background-color: #06060A !important;
     color: #E2E8F0 !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
     border-radius: 10px !important;
     padding: 0.55rem 0.75rem !important;
     font-size: 0.9rem !important;
     transition: all 0.2s ease !important;
 }
 .stTextInput input:focus, .stNumberInput input:focus, div[data-baseweb="select"]:focus-within {
-    border-color: #00F2FE !important;
-    box-shadow: 0 0 12px rgba(0, 242, 254, 0.15) !important;
+    border-color: #10B981 !important;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.12) !important;
 }
 .stTextArea textarea {
-    background-color: #080C16 !important;
-    color: #E0F2FE !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background-color: #040508 !important;
+    color: #ECFDF5 !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
     border-radius: 16px !important;
     font-size: 1.05rem !important;
     padding: 1.2rem !important;
@@ -187,28 +187,28 @@ div[data-baseweb="select"] > div {
     line-height: 1.5 !important;
 }
 .stTextArea textarea:focus {
-    border-color: #00F2FE !important;
-    box-shadow: 0 0 15px rgba(0, 242, 254, 0.2) !important;
+    border-color: #10B981 !important;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.15) !important;
 }
 
 /* ── Buttons ── */
 .stButton > button {
-    background: linear-gradient(135deg, #00F2FE 0%, #4FACFE 50%, #00FF87 100%) !important;
-    color: #030712 !important; 
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+    color: #050508 !important; 
     border: none !important;
     border-radius: 12px !important; 
     font-weight: 700 !important;
     padding: 0.7rem 1.8rem !important; 
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    box-shadow: 0 4px 20px rgba(0, 242, 254, 0.3) !important;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.2) !important;
     letter-spacing: 0.5px !important;
     text-transform: uppercase !important;
     font-size: 0.85rem !important;
 }
 .stButton > button:hover {
     transform: translateY(-2px) !important;
-    box-shadow: 0 8px 30px rgba(0, 242, 254, 0.45), 0 0 10px rgba(0, 255, 135, 0.2) !important;
-    color: #030712 !important;
+    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.35) !important;
+    color: #050508 !important;
 }
 .stButton > button:active {
     transform: translateY(0px) !important;
@@ -245,8 +245,8 @@ button[key*="disconnect"]:hover {
 
 /* ── Sidebar Styling ── */
 [data-testid="stSidebar"] {
-    background-color: #02040A !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+    background-color: #030305 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.02) !important;
 }
 
 /* Sidebar navigation radios */
@@ -261,27 +261,27 @@ div[data-testid="stSidebar"] div.stRadio div[role="radiogroup"] {
     gap: 8px;
 }
 div[data-testid="stSidebar"] div.stRadio div[role="radiogroup"] label {
-    background: rgba(255, 255, 255, 0.02) !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.01) !important;
+    border: 1px solid rgba(255, 255, 255, 0.03) !important;
     padding: 0.6rem 0.8rem !important;
     border-radius: 10px !important;
     transition: all 0.2s ease;
     cursor: pointer;
 }
 div[data-testid="stSidebar"] div.stRadio div[role="radiogroup"] label:hover {
-    background: rgba(0, 242, 254, 0.05) !important;
-    border-color: rgba(0, 242, 254, 0.2) !important;
+    background: rgba(16, 185, 129, 0.02) !important;
+    border-color: rgba(16, 185, 129, 0.15) !important;
 }
 div[data-testid="stSidebar"] div.stRadio div[role="radiogroup"] div[data-checked="true"] label {
-    background: rgba(0, 242, 254, 0.08) !important;
-    border-color: #00F2FE !important;
-    color: #00F2FE !important;
+    background: rgba(16, 185, 129, 0.06) !important;
+    border-color: #10B981 !important;
+    color: #10B981 !important;
 }
 
 /* ── Expander Panels ── */
 .streamlit-expanderHeader {
-    background-color: #0B0F19 !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background-color: #06060A !important;
+    border: 1px solid rgba(255, 255, 255, 0.03) !important;
     border-radius: 12px !important;
     color: #E2E8F0 !important;
     font-weight: 600 !important;
@@ -290,14 +290,14 @@ div[data-testid="stSidebar"] div.stRadio div[role="radiogroup"] div[data-checked
     transition: all 0.2s ease !important;
 }
 .streamlit-expanderHeader:hover {
-    border-color: rgba(0, 242, 254, 0.3) !important;
-    color: #00F2FE !important;
+    border-color: rgba(16, 185, 129, 0.20) !important;
+    color: #10B981 !important;
 }
 .streamlit-expanderContent {
-    background-color: rgba(11, 15, 25, 0.4) !important;
-    border-left: 1px solid rgba(255, 255, 255, 0.04) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+    background-color: rgba(6, 6, 10, 0.4) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.02) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.02) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02) !important;
     border-radius: 0 0 12px 12px !important;
     padding: 1.25rem !important;
 }
@@ -312,25 +312,25 @@ div[data-testid="stSidebar"] div.stRadio div[role="radiogroup"] div[data-checked
 .metric-card {
     flex: 1; 
     min-width: 120px;
-    background: rgba(13, 20, 38, 0.65) !important; 
-    border: 1px solid rgba(0, 242, 254, 0.15) !important;
+    background: rgba(8, 8, 12, 0.6) !important; 
+    border: 1px solid rgba(16, 185, 129, 0.12) !important;
     border-radius: 16px; 
     padding: 1.25rem 1rem; 
     text-align: center;
     backdrop-filter: blur(10px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     transition: all 0.2s ease;
 }
 .metric-card:hover {
     transform: translateY(-2px);
-    border-color: rgba(0, 242, 254, 0.4) !important;
-    box-shadow: 0 12px 30px rgba(0, 242, 254, 0.1);
+    border-color: rgba(16, 185, 129, 0.3) !important;
+    box-shadow: 0 12px 30px rgba(16, 185, 129, 0.08);
 }
 .metric-card .mv { 
     font-size: 2.2rem; 
     font-weight: 800; 
-    color: #00F2FE; 
-    background: linear-gradient(90deg, #00F2FE, #00FF87);
+    color: #10B981; 
+    background: linear-gradient(90deg, #10B981, #00F6A5);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     line-height: 1;
@@ -346,28 +346,28 @@ div[data-testid="stSidebar"] div.stRadio div[role="radiogroup"] div[data-checked
 
 /* ── SQL View Cards ── */
 .sql-card {
-    background: #040810 !important; 
-    border: 1px solid rgba(0, 242, 254, 0.2) !important;
-    border-left: 4px solid #00F2FE !important;
+    background: #030406 !important; 
+    border: 1px solid rgba(16, 185, 129, 0.15) !important;
+    border-left: 4px solid #10B981 !important;
     border-radius: 12px; 
     padding: 1.5rem; 
     margin-bottom: 1.25rem;
-    box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.9);
 }
 .sql-card pre {
     font-family: 'JetBrains Mono', monospace !important;
     font-size: 0.95rem !important;
-    color: #00FF87 !important;
+    color: #00F6A5 !important;
     margin: 0;
 }
 
 /* ── Tabs Restyling ── */
 .stTabs [data-baseweb="tab-list"] { 
-    background: #0B0F19 !important; 
+    background: #06060A !important; 
     border-radius: 14px; 
     padding: 6px; 
     gap: 6px; 
-    border: 1px solid rgba(255,255,255,0.03) !important;
+    border: 1px solid rgba(255,255,255,0.02) !important;
 }
 .stTabs [data-baseweb="tab"] { 
     background: transparent !important; 
@@ -382,16 +382,16 @@ div[data-testid="stSidebar"] div.stRadio div[role="radiogroup"] div[data-checked
     color: #E2E8F0 !important;
 }
 .stTabs [aria-selected="true"] { 
-    background: rgba(0, 242, 254, 0.08) !important; 
-    color: #00F2FE !important; 
-    border: 1px solid rgba(0, 242, 254, 0.2) !important;
+    background: rgba(16, 185, 129, 0.06) !important; 
+    color: #10B981 !important; 
+    border: 1px solid rgba(16, 185, 129, 0.15) !important;
 }
 
 /* ── History Panel ── */
 .hist-item {
-    background: rgba(15, 23, 42, 0.3); 
-    border: 1px solid rgba(255,255,255,0.02);
-    border-left: 3px solid #00F2FE;
+    background: rgba(10, 10, 14, 0.3); 
+    border: 1px solid rgba(255,255,255,0.01);
+    border-left: 3px solid #10B981;
     border-radius: 0 10px 10px 0; 
     padding: 0.6rem 0.8rem;
     margin-bottom: 0.5rem; 
@@ -400,23 +400,23 @@ div[data-testid="stSidebar"] div.stRadio div[role="radiogroup"] div[data-checked
     transition: all 0.2s ease;
 }
 .hist-item:hover {
-    background: rgba(0, 242, 254, 0.04);
-    border-color: rgba(0, 242, 254, 0.1);
-    border-left-color: #00FF87;
+    background: rgba(16, 185, 129, 0.03);
+    border-color: rgba(16, 185, 129, 0.08);
+    border-left-color: #00F6A5;
     color: #E2E8F0;
 }
 
 /* ── File Uploader ── */
 [data-testid="stFileUploader"] { 
-    background: rgba(11, 15, 25, 0.5); 
-    border: 2px dashed rgba(0, 242, 254, 0.25); 
+    background: rgba(8, 8, 12, 0.5); 
+    border: 2px dashed rgba(16, 185, 129, 0.15); 
     border-radius: 16px; 
     padding: 1.5rem; 
     transition: all 0.2s ease;
 }
 [data-testid="stFileUploader"]:hover {
-    border-color: #00F2FE;
-    background: rgba(0, 242, 254, 0.02);
+    border-color: #10B981;
+    background: rgba(16, 185, 129, 0.01);
 }
 
 /* ── Errors and Info ── */
@@ -436,9 +436,9 @@ div[data-testid="stSidebar"] div.stRadio div[role="radiogroup"] div[data-checked
 
 /* ── Custom Scrollbar ── */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #030712; }
-::-webkit-scrollbar-thumb { background: #1F2937; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #374151; }
+::-webkit-scrollbar-track { background: #050508; }
+::-webkit-scrollbar-thumb { background: #111827; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #1F2937; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -516,7 +516,7 @@ with st.sidebar:
     st.markdown("""
     <div style="padding: 1rem 0 0.5rem; text-align:center;">
         <div style="font-size:2rem;">🧠</div>
-        <div style="font-size:1rem; font-weight:700; color:#00C9A7;">QueryAI</div>
+        <div style="font-size:1rem; font-weight:700; color:#10B981;">QueryAI</div>
         <div style="font-size:0.7rem; color:#475569;">Universal Text-to-SQL</div>
     </div>
     <hr style="border-color:#1E293B; margin:0.5rem 0 1rem;">
@@ -639,26 +639,26 @@ if st.session_state.get("app_mode") == "📖 Database Setup Guide":
     st.markdown("""
     <style>
     .guide-card {
-        background: #0F172A;
-        border: 1px solid #1E293B;
+        background: #06060A;
+        border: 1px solid rgba(255, 255, 255, 0.03);
         border-radius: 16px;
         padding: 2rem;
         margin-top: 1.5rem;
         margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.35);
     }
     .guide-header {
         display: flex;
         align-items: center;
         gap: 0.75rem;
         margin-bottom: 1.25rem;
-        border-bottom: 1px solid #1E293B;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
         padding-bottom: 0.75rem;
     }
     .guide-title {
         font-size: 1.35rem;
         font-weight: 700;
-        color: #00C9A7;
+        color: #10B981;
         margin: 0;
     }
     .guide-steps {
@@ -670,13 +670,13 @@ if st.session_state.get("app_mode") == "📖 Database Setup Guide":
         color: #E2E8F0;
     }
     .code-block {
-        background: #090F1A;
-        border: 1px solid rgba(0, 201, 167, 0.2);
+        background: #040508;
+        border: 1px solid rgba(16, 185, 129, 0.15);
         border-radius: 8px;
         padding: 0.75rem 1rem;
         font-family: 'Courier New', Courier, monospace;
         font-size: 0.88rem;
-        color: #00C9A7;
+        color: #00F6A5;
         margin: 0.75rem 0;
         overflow-x: auto;
     }
@@ -896,9 +896,9 @@ with st.expander(
     # ── Form based on selected DB type ──────────────────────────────────────
     if selected_db == "🏥 Demo (Hospital SQLite)":
         st.markdown("""
-        <div style="background:rgba(0,201,167,0.08);border:1px solid rgba(0,201,167,0.2);
+        <div style="background:rgba(16, 185, 129, 0.06);border:1px solid rgba(16, 185, 129, 0.20);
                     border-radius:10px;padding:1rem;font-size:0.9rem;color:#94A3B8;">
-            🎉 <b style="color:#00C9A7">Ready to use!</b> The hospital demo database includes:<br>
+            🎉 <b style="color:#10B981">Ready to use!</b> The hospital demo database includes:<br>
             👥 150 patients &nbsp;|&nbsp; 👨‍⚕️ 20 doctors &nbsp;|&nbsp;
             📅 300 appointments &nbsp;|&nbsp; 💊 prescriptions &nbsp;|&nbsp; 💳 billing records
         </div>

@@ -540,7 +540,7 @@ with st.sidebar:
             f'<div class="status-connected">🟢 {db_icon} {st.session_state.active_db_type.split(" ", 1)[-1]}</div>',
             unsafe_allow_html=True
         )
-        if st.button("🔌 Disconnect", use_container_width=True, key="disconnect_btn"):
+        if st.button("🔌 Disconnect", width="stretch", key="disconnect_btn"):
             for k in ["engine", "csv_tables", "connected", "schema_str",
                       "schema_dict", "table_names", "last_df", "last_sql"]:
                 st.session_state[k] = defaults[k]
@@ -589,7 +589,7 @@ with st.sidebar:
                 st.session_state.engine, sel_tbl, 4,
                 csv_tables=st.session_state.csv_tables
             )
-            st.dataframe(prev_df, use_container_width=True, hide_index=True)
+            st.dataframe(prev_df, width="stretch", hide_index=True)
 
     # ── Query History ──
     if st.session_state.query_history:
@@ -904,7 +904,7 @@ with st.expander(
         </div>
         """, unsafe_allow_html=True)
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("🚀 Load Demo Database", key="load_demo", use_container_width=True):
+        if st.button("🚀 Load Demo Database", key="load_demo", width="stretch"):
             if not os.path.exists(DB_PATH):
                 setup_database()
             cfg = ConnectionConfig(db_type="🏥 Demo (Hospital SQLite)")
@@ -934,7 +934,7 @@ with st.expander(
                     unsafe_allow_html=True
                 )
             st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("📊 Load CSV Data", key="load_csv", use_container_width=True):
+            if st.button("📊 Load CSV Data", key="load_csv", width="stretch"):
                 cfg = ConnectionConfig(db_type="📄 CSV Upload")
                 do_connect(cfg, csv_tables=csv_preview)
                 st.rerun()
@@ -945,7 +945,7 @@ with st.expander(
             placeholder="C:/path/to/your/database.db",
             key="sqlite_path_input"
         )
-        if st.button("🔌 Connect to SQLite File", key="connect_sqlite", use_container_width=True):
+        if st.button("🔌 Connect to SQLite File", key="connect_sqlite", width="stretch"):
             cfg = ConnectionConfig(db_type="📁 SQLite (File)", sqlite_path=sqlite_path)
             do_connect(cfg)
             if st.session_state.connected:
@@ -997,7 +997,7 @@ with st.expander(
 
         col_test, col_connect = st.columns(2)
         with col_test:
-            if st.button("🧪 Test Connection", key="test_conn", use_container_width=True):
+            if st.button("🧪 Test Connection", key="test_conn", width="stretch"):
                 with st.spinner("Testing..."):
                     cfg = ConnectionConfig(
                         db_type=selected_db, host=host, port=int(port),
@@ -1012,7 +1012,7 @@ with st.expander(
                     engine.dispose()
 
         with col_connect:
-            if st.button("🚀 Connect & Load Schema", key="connect_db", use_container_width=True):
+            if st.button("🚀 Connect & Load Schema", key="connect_db", width="stretch"):
                 with st.spinner(f"Connecting to {selected_db}..."):
                     cfg = ConnectionConfig(
                         db_type=selected_db, host=host, port=int(port),
@@ -1092,7 +1092,7 @@ st.markdown('<div class="section-label">💡 Sample Questions</div>', unsafe_all
 q_cols = st.columns(5)
 for idx, q in enumerate(sample_qs[:10]):
     with q_cols[idx % 5]:
-        if st.button(q, key=f"sq_{idx}", use_container_width=True):
+        if st.button(q, key=f"sq_{idx}", width="stretch"):
             st.session_state.current_question = q
 
 st.markdown("<br>", unsafe_allow_html=True)
@@ -1111,7 +1111,7 @@ with col_q:
     )
 with col_btn:
     st.markdown("<br>", unsafe_allow_html=True)
-    run_btn = st.button("⚡ Run", use_container_width=True, key="run_query_btn")
+    run_btn = st.button("⚡ Run", width="stretch", key="run_query_btn")
 
 # ── Execute ────────────────────────────────────────────────────────────────────
 if run_btn and user_question.strip():
@@ -1181,14 +1181,14 @@ if st.session_state.last_df is not None and not st.session_state.last_df.empty:
     tab_data, tab_chart, tab_sql = st.tabs(["📊 Data Table", "📈 Auto Chart", "🧠 Generated SQL"])
 
     with tab_data:
-        st.dataframe(df, use_container_width=True, hide_index=True, height=min(420, 45 + rows * 38))
+        st.dataframe(df, width="stretch", hide_index=True, height=min(420, 45 + rows * 38))
         csv_export = df.to_csv(index=False)
         st.download_button("⬇️ Download CSV", csv_export, "results.csv", "text/csv")
 
     with tab_chart:
         fig = auto_visualize(df, question)
         if fig:
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
         else:
             st.markdown("""
             <div style="text-align:center;padding:3rem;color:#475569;">

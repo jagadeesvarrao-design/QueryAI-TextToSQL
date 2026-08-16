@@ -19,6 +19,7 @@ QueryAI dynamically parses active schemas, translates human queries into optimiz
 ## ✨ Outstanding Features
 
 - 🤖 **Universal Text-to-SQL**: Auto-detects the active database dialect (MySQL, PostgreSQL, MS SQL, Oracle, SQLite) and structures the translation context accordingly.
+- 🎯 **Semantic Schema Pruning (Schema RAG)**: Vectorizes table definitions using embeddings and performs cosine similarity search against user queries to scale seamlessly to **150+ tables** while eliminating LLM token bloat.
 - 📊 **Smart Auto-Visualization**: Intelligently inspects query result sets to choose, build, and style Plotly graphs (Bar, Line, Histograms, or Frequency Count charts).
 - 📄 **Dynamic CSV Uploads**: Drag and drop multiple CSV sheets to instantly query them as virtual relational tables in-memory.
 - 🏥 **Out-of-the-Box Demo**: Instantly provisions a mock hospital database with 150 patients, 20 doctors, and 300 appointments to experience the app in 1 click.
@@ -33,12 +34,13 @@ QueryAI dynamically parses active schemas, translates human queries into optimiz
 ```mermaid
 graph TD
     User([User English Question]) --> UI[Streamlit Frontend]
-    UI --> LLM[utils/llm_handler.py]
-    LLM -->|Prompt Injection| Gemini[Google Gemini API]
+    UI --> Pruner[utils/schema_pruner.py (Schema RAG)]
+    DbConn[(Target Database)] -->|Reflect Schema 150+ Tables| Pruner
+    Pruner -->|Vector Cosine Lookup & Pruning| PrunedSchema[Top-K Relevant Table Schemas]
     
-    %% Context feeding
-    Schema[Schema Extractor] -.->|Inject Schema Context| Gemini
-    DbConn[(Target Database)] -->|Reflect Schema| Schema
+    PrunedSchema --> LLM[utils/llm_handler.py]
+    User -.-> LLM
+    LLM -->|Prompt Injection| Gemini[Google Gemini API]
     
     Gemini -->|Returns Raw SQL| LLM
     LLM -->|Clean SQL| UI

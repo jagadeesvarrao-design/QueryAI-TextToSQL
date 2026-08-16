@@ -17,6 +17,7 @@ from utils.connection_manager import (
     build_engine,
     extract_schema_string,
     extract_schema_dict,
+    extract_table_schemas_dict,
     get_table_names_from_engine,
     get_table_preview_from_engine,
     run_query_on_engine,
@@ -451,6 +452,7 @@ defaults = {
     "conn_config": None,
     "schema_str": "",
     "schema_dict": {},
+    "table_schemas_dict": {},
     "table_names": [],
     "query_history": [],
     "last_sql": "",
@@ -485,6 +487,7 @@ def do_connect(config: ConnectionConfig, csv_tables=None):
         st.session_state.conn_config = config
         st.session_state.schema_str = extract_schema_string(None, csv_tables)
         st.session_state.schema_dict = extract_schema_dict(None, csv_tables)
+        st.session_state.table_schemas_dict = extract_table_schemas_dict(None, csv_tables)
         st.session_state.table_names = list(csv_tables.keys())
         st.success(f"✅ Loaded {len(csv_tables)} CSV table(s)!")
         return
@@ -501,6 +504,7 @@ def do_connect(config: ConnectionConfig, csv_tables=None):
     st.session_state.conn_config = config
     st.session_state.schema_str = extract_schema_string(engine)
     st.session_state.schema_dict = extract_schema_dict(engine)
+    st.session_state.table_schemas_dict = extract_table_schemas_dict(engine)
     st.session_state.table_names = get_table_names_from_engine(engine)
     # Clear previous results when switching DB
     st.session_state.last_df = None
@@ -628,7 +632,7 @@ st.markdown(f"""
     <div class="badge-row">
         {connected_badge}
         <span class="badge">🤖 {model_badge}</span>
-        <span class="badge">⚡ Real-time SQL</span>
+        <span class="badge">⚡ 150+ Tables (Schema RAG)</span>
         <span class="badge">📊 Auto Charts</span>
     </div>
 </div>
@@ -1126,9 +1130,11 @@ if run_btn and user_question.strip():
         else:
             active_dialect = "SQLite"
 
+        schema_input = st.session_state.get("table_schemas_dict") or st.session_state.schema_str
+
         sql, used_model, llm_err = generate_sql(
             question, 
-            st.session_state.schema_str, 
+            schema_input, 
             dialect=active_dialect,
             model_name=st.session_state.get("selected_model")
         )

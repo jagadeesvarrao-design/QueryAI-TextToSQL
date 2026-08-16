@@ -6,7 +6,7 @@ import re
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 _MODELS = {}
 
@@ -72,18 +72,33 @@ Database Schema:
 """
 
 
-def generate_sql(user_question: str, schema: str, dialect: str = "SQLite", model_name: str = None) -> tuple[str, str, str]:
+from utils.schema_pruner import prune_schema
+
+
+def generate_sql(
+    user_question: str,
+    schema: str | dict[str, str],
+    dialect: str = "SQLite",
+    model_name: str = None,
+    top_k_tables: int = 7
+) -> tuple[str, str, str]:
     """
     Convert a natural language question to SQL using Gemini.
+    Automatically applies Semantic Schema Pruning (Schema RAG) if a dictionary
+    of table schemas is provided.
     
     Returns:
         (sql_query, used_model_name, error_message)
-        If successful, error_message is "".
-        If failed, sql_query is "" and error_message contains details.
     """
     try:
+        # If schema is a dict of individual table definitions, prune it semantically
+        if isinstance(schema, dict):
+            final_schema, _ = prune_schema(user_question, schema, top_k=top_k_tables)
+        else:
+            final_schema = schema
+
         model, used_model = _get_model(model_name)
-        prompt = SYSTEM_PROMPT.format(dialect=dialect, schema=schema) + f"\n\nUser Question: {user_question}"
+        prompt = SYSTEM_PROMPT.format(dialect=dialect, schema=final_schema) + f"\n\nUser Question: {user_question}"
         
         response = model.generate_content(prompt)
         raw_output = response.text.strip()

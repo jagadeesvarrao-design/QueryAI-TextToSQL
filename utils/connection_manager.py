@@ -153,28 +153,30 @@ def build_engine(config: ConnectionConfig):
 
 # ─── Schema Extraction ─────────────────────────────────────────────────────────
 
-def extract_schema_string(engine, csv_tables: dict = None) -> str:
+def extract_table_schemas_dict(engine, csv_tables: dict = None) -> dict[str, str]:
     """
-    Extract schema as a string for Gemini prompt injection.
-    Supports both SQLAlchemy engines and CSV (dict of DataFrames).
+    Extract individual table schemas as a dictionary: {table_name: formatted_schema_string}.
+    Supports up to 150+ tables for Semantic Schema Pruning (RAG).
     """
     if csv_tables:
-        return _csv_schema_string(csv_tables)
+        res = {}
+        for table_name, df in csv_tables.items():
+            col_defs = ", ".join(f"{col} ({str(df[col].dtype)})" for col in df.columns)
+            res[table_name] = f"Table: {table_name}\n  Columns: {col_defs}\n  Row count: {len(df)}"
+        return res
 
     if engine is None:
-        return ""
+        return {}
 
+    table_schemas = {}
     try:
         inspector = inspect(engine)
-        schema_parts = []
-
-        # Handle schema-aware databases (PostgreSQL, MSSQL, Oracle)
         try:
             tables = inspector.get_table_names(schema=None)
         except Exception:
             tables = inspector.get_table_names()
 
-        for table in tables[:50]:  # Cap at 50 tables
+        for table in tables[:150]:  # Scaled to 150 tables via Schema RAG
             try:
                 columns = inspector.get_columns(table)
                 col_defs = ", ".join(
@@ -182,7 +184,7 @@ def extract_schema_string(engine, csv_tables: dict = None) -> str:
                 )
                 part = f"Table: {table}\n  Columns: {col_defs}"
 
-                # Row count (skip if too slow on large DBs)
+                # Fast row count approximation (optional)
                 try:
                     with engine.connect() as conn:
                         result = conn.execute(text(f"SELECT COUNT(*) FROM {_quote_table(table, engine)}"))
@@ -191,14 +193,23 @@ def extract_schema_string(engine, csv_tables: dict = None) -> str:
                 except Exception:
                     pass
 
-                schema_parts.append(part)
+                table_schemas[table] = part
             except Exception:
                 continue
 
-        return "\n\n".join(schema_parts)
+        return table_schemas
 
-    except Exception as e:
-        return f"Schema extraction error: {str(e)}"
+    except Exception:
+        return {}
+
+
+def extract_schema_string(engine, csv_tables: dict = None) -> str:
+    """
+    Extract schema as a string for Gemini prompt injection.
+    Supports both SQLAlchemy engines and CSV (dict of DataFrames).
+    """
+    schemas_dict = extract_table_schemas_dict(engine, csv_tables)
+    return "\n\n".join(schemas_dict.values())
 
 
 def extract_schema_dict(engine, csv_tables: dict = None) -> dict:
@@ -222,7 +233,7 @@ def extract_schema_dict(engine, csv_tables: dict = None) -> dict:
             tables = inspector.get_table_names()
 
         schema = {}
-        for table in tables[:50]:
+        for table in tables[:150]:
             try:
                 columns = inspector.get_columns(table)
                 schema[table] = [(col["name"], str(col["type"])) for col in columns]
@@ -242,9 +253,9 @@ def get_table_names_from_engine(engine, csv_tables: dict = None) -> list:
     try:
         inspector = inspect(engine)
         try:
-            return inspector.get_table_names(schema=None)[:50]
+            return inspector.get_table_names(schema=None)[:150]
         except Exception:
-            return inspector.get_table_names()[:50]
+            return inspector.get_table_names()[:150]
     except Exception:
         return []
 

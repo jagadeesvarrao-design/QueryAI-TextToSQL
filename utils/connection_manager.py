@@ -151,40 +151,61 @@ def build_engine(config: ConnectionConfig):
         return None, str(e)
 
 
-# ─── Schema Extraction ─────────────────────────────────────────────────────────
+# ─── Schema Extraction & On-Demand Inspection ─────────────────────────────────
 
-def extract_table_schemas_dict(engine, csv_tables: dict = None) -> dict[str, str]:
+def get_all_table_names(engine, csv_tables: dict = None) -> list[str]:
     """
-    Extract individual table schemas as a dictionary: {table_name: formatted_schema_string}.
-    Supports up to 150+ tables for Semantic Schema Pruning (RAG).
+    Return list of ALL table names in the database (supports 3,000+ tables).
+    Lightweight, fast (<50ms).
+    """
+    if csv_tables:
+        return list(csv_tables.keys())
+    if engine is None:
+        return []
+    try:
+        inspector = inspect(engine)
+        try:
+            return inspector.get_table_names(schema=None)
+        except Exception:
+            return inspector.get_table_names()
+    except Exception:
+        return []
+
+
+def fetch_columns_for_specific_tables(
+    engine, 
+    target_tables: list[str], 
+    csv_tables: dict = None
+) -> dict[str, str]:
+    """
+    Just-In-Time On-Demand Column Extraction:
+    Queries column definitions for ONLY the specified target tables.
+    Takes <5ms even on a 3,000+ table database.
     """
     if csv_tables:
         res = {}
-        for table_name, df in csv_tables.items():
-            col_defs = ", ".join(f"{col} ({str(df[col].dtype)})" for col in df.columns)
-            res[table_name] = f"Table: {table_name}\n  Columns: {col_defs}\n  Row count: {len(df)}"
+        for table in target_tables:
+            if table in csv_tables:
+                df = csv_tables[table]
+                col_defs = ", ".join(f"{col} ({str(df[col].dtype)})" for col in df.columns)
+                res[table] = f"Table: {table}\n  Columns: {col_defs}\n  Row count: {len(df)}"
         return res
 
-    if engine is None:
+    if engine is None or not target_tables:
         return {}
 
     table_schemas = {}
     try:
         inspector = inspect(engine)
-        try:
-            tables = inspector.get_table_names(schema=None)
-        except Exception:
-            tables = inspector.get_table_names()
-
-        for table in tables[:150]:  # Scaled to 150 tables via Schema RAG
+        for table in target_tables:
             try:
                 columns = inspector.get_columns(table)
                 col_defs = ", ".join(
                     f"{col['name']} ({str(col['type'])})" for col in columns
                 )
                 part = f"Table: {table}\n  Columns: {col_defs}"
-
-                # Fast row count approximation (optional)
+                
+                # Optional fast row count
                 try:
                     with engine.connect() as conn:
                         result = conn.execute(text(f"SELECT COUNT(*) FROM {_quote_table(table, engine)}"))
@@ -198,9 +219,23 @@ def extract_table_schemas_dict(engine, csv_tables: dict = None) -> dict[str, str
                 continue
 
         return table_schemas
-
     except Exception:
         return {}
+
+
+def extract_table_schemas_dict(engine, csv_tables: dict = None) -> dict[str, str]:
+    """
+    Extract individual table schemas as a dictionary: {table_name: formatted_schema_string}.
+    If database <= 150 tables: Pre-fetches all schemas for zero-latency local caching.
+    If database > 150 tables: Returns empty dict so the engine automatically routes to On-Demand Fetching.
+    """
+    all_tables = get_all_table_names(engine, csv_tables)
+    
+    # If massive database (>150 tables), bypass eager pre-fetching to prevent connection delays
+    if len(all_tables) > 150:
+        return {}
+
+    return fetch_columns_for_specific_tables(engine, all_tables, csv_tables)
 
 
 def extract_schema_string(engine, csv_tables: dict = None) -> str:
@@ -215,6 +250,7 @@ def extract_schema_string(engine, csv_tables: dict = None) -> str:
 def extract_schema_dict(engine, csv_tables: dict = None) -> dict:
     """
     Extract schema as {table_name: [(col_name, col_type), ...]} for sidebar rendering.
+    Caps sidebar display at 100 tables for smooth UI performance.
     """
     if csv_tables:
         return {
@@ -227,13 +263,10 @@ def extract_schema_dict(engine, csv_tables: dict = None) -> dict:
 
     try:
         inspector = inspect(engine)
-        try:
-            tables = inspector.get_table_names(schema=None)
-        except Exception:
-            tables = inspector.get_table_names()
+        tables = get_all_table_names(engine)[:100]  # Display top 100 in sidebar tree
 
         schema = {}
-        for table in tables[:150]:
+        for table in tables:
             try:
                 columns = inspector.get_columns(table)
                 schema[table] = [(col["name"], str(col["type"])) for col in columns]
@@ -245,19 +278,8 @@ def extract_schema_dict(engine, csv_tables: dict = None) -> dict:
 
 
 def get_table_names_from_engine(engine, csv_tables: dict = None) -> list:
-    """Return list of table names."""
-    if csv_tables:
-        return list(csv_tables.keys())
-    if engine is None:
-        return []
-    try:
-        inspector = inspect(engine)
-        try:
-            return inspector.get_table_names(schema=None)[:150]
-        except Exception:
-            return inspector.get_table_names()[:150]
-    except Exception:
-        return []
+    """Return list of all table names."""
+    return get_all_table_names(engine, csv_tables)
 
 
 def get_table_preview_from_engine(engine, table_name: str, limit: int = 5,

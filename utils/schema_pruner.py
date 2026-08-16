@@ -154,3 +154,81 @@ def prune_schema(
     pruned_schema = "\n\n".join(table_schemas[t] for t in ordered_selected)
     
     return pruned_schema, ordered_selected
+
+
+def match_relevant_table_names(
+    question: str, 
+    all_table_names: list[str], 
+    top_k: int = 7
+) -> list[str]:
+    """
+    Given 3,000+ table names, rank and match the top_k most relevant table names
+    to the user's natural language question without needing column metadata.
+    """
+    if not all_table_names:
+        return []
+    if len(all_table_names) <= top_k:
+        return list(all_table_names)
+
+    scores: dict[str, float] = {}
+    
+    # Try vector embedding on table names
+    try:
+        q_vec = _embed_text(question)
+        for tname in all_table_names:
+            cache_key = f"name_{tname}"
+            if cache_key in _EMBEDDINGS_CACHE:
+                t_vec = _EMBEDDINGS_CACHE[cache_key]
+            else:
+                t_vec = _embed_text(f"Database table: {tname}")
+                _EMBEDDINGS_CACHE[cache_key] = t_vec
+                
+            sim = _cosine_similarity(q_vec, t_vec)
+            # Direct word match boost
+            if tname.lower() in question.lower():
+                sim += 0.5
+            scores[tname] = sim
+    except Exception:
+        # Fast lexical keyword fallback
+        q_lower = question.lower()
+        q_words = set(re.findall(r'\w+', q_lower))
+        for tname in all_table_names:
+            t_lower = tname.lower()
+            score = 0.0
+            if t_lower in q_lower:
+                score += 3.0
+            t_words = set(re.findall(r'\w+', t_lower))
+            overlap = q_words.intersection(t_words)
+            score += len(overlap)
+            scores[tname] = score
+
+    ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+    return [t[0] for t in ranked[:top_k]]
+
+
+def get_effective_schema(
+    question: str,
+    engine,
+    all_table_names: list[str],
+    pre_fetched_schemas: dict[str, str] = None,
+    csv_tables: dict = None,
+    top_k: int = 7
+) -> tuple[str, list[str]]:
+    """
+    Hybrid Schema Engine:
+    - If <= 150 tables and pre_fetched_schemas available: Uses fast in-memory Schema RAG.
+    - If > 150 tables (3,000+ tables): Performs Just-In-Time On-Demand Column Fetching!
+    """
+    from utils.connection_manager import fetch_columns_for_specific_tables
+
+    # Mode 1: In-Memory Pre-Fetched Schema (<150 tables)
+    if pre_fetched_schemas and len(pre_fetched_schemas) > 0:
+        return prune_schema(question, pre_fetched_schemas, top_k=top_k)
+
+    # Mode 2: On-Demand Just-In-Time Fetching (3,000+ tables)
+    matched_names = match_relevant_table_names(question, all_table_names, top_k=top_k)
+    dynamic_schemas = fetch_columns_for_specific_tables(engine, matched_names, csv_tables=csv_tables)
+    
+    final_schema_str = "\n\n".join(dynamic_schemas.values())
+    return final_schema_str, matched_names
+

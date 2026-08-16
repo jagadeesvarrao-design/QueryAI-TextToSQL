@@ -24,6 +24,7 @@ from utils.connection_manager import (
     get_dialect_name,
 )
 from utils.llm_handler import generate_sql
+from utils.schema_pruner import get_effective_schema
 from utils.visualizer import auto_visualize
 from database.setup_db import setup_database, DB_PATH
 
@@ -632,7 +633,7 @@ st.markdown(f"""
     <div class="badge-row">
         {connected_badge}
         <span class="badge">🤖 {model_badge}</span>
-        <span class="badge">⚡ 150+ Tables (Schema RAG)</span>
+        <span class="badge">⚡ 3,000+ Tables (Hybrid On-Demand RAG)</span>
         <span class="badge">📊 Auto Charts</span>
     </div>
 </div>
@@ -1130,11 +1131,22 @@ if run_btn and user_question.strip():
         else:
             active_dialect = "SQLite"
 
-        schema_input = st.session_state.get("table_schemas_dict") or st.session_state.schema_str
+        all_tbls = st.session_state.get("table_names") or []
+        pre_fetched = st.session_state.get("table_schemas_dict") or {}
+
+        # Resolve schema (uses fast in-memory RAG for <=150 tables, or On-Demand JIT fetching for >150 tables)
+        effective_schema_str, _ = get_effective_schema(
+            question=question,
+            engine=st.session_state.engine,
+            all_table_names=all_tbls,
+            pre_fetched_schemas=pre_fetched,
+            csv_tables=st.session_state.csv_tables,
+            top_k=7
+        )
 
         sql, used_model, llm_err = generate_sql(
             question, 
-            schema_input, 
+            effective_schema_str, 
             dialect=active_dialect,
             model_name=st.session_state.get("selected_model")
         )

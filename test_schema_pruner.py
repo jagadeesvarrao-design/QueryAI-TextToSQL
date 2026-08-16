@@ -7,11 +7,19 @@ from dotenv import load_dotenv
 sys.path.insert(0, r"C:\Users\DELL\OneDrive\Desktop\PROJECTS\text-to-sql")
 load_dotenv(r"C:\Users\DELL\OneDrive\Desktop\PROJECTS\text-to-sql\.env", override=True)
 
-from utils.schema_pruner import prune_schema, _cosine_similarity, _keyword_similarity
+from utils.schema_pruner import (
+    prune_schema, 
+    _cosine_similarity, 
+    _keyword_similarity,
+    match_relevant_table_names,
+    get_effective_schema,
+)
 from utils.connection_manager import (
     ConnectionConfig,
     build_engine,
     extract_table_schemas_dict,
+    get_all_table_names,
+    fetch_columns_for_specific_tables,
 )
 from utils.llm_handler import generate_sql
 
@@ -25,6 +33,24 @@ def test_cosine_math():
     assert abs(_cosine_similarity(v1, v2) - 1.0) < 1e-5
     assert abs(_cosine_similarity(v1, v3) - 0.0) < 1e-5
     print("✅ Cosine math passed!")
+
+
+def test_3000_table_names_matching():
+    print("Testing 3,000+ table names matching on-demand...")
+    # Generate 3,000 simulated table names (like an enterprise SAP/Oracle ERP system)
+    dummy_names = [f"tbl_module_{i}_{j}" for i in range(100) for j in range(30)]
+    dummy_names.append("warehouses_archive")
+    dummy_names.append("inventory_stock_logs")
+    dummy_names.append("customer_billing_ledger")
+    
+    assert len(dummy_names) >= 3000, f"Expected 3000+ tables, got {len(dummy_names)}"
+    
+    # Query for warehouse archive
+    q = "Show me stock levels from warehouses_archive"
+    matched = match_relevant_table_names(q, dummy_names, top_k=3)
+    print(f"3,000 Tables Query: '{q}' -> Matched: {matched}")
+    assert "warehouses_archive" in matched, "Expected 'warehouses_archive' in matched tables!"
+    print("✅ 3,000+ table name matching passed!")
 
 
 def test_schema_pruning_logic():
@@ -78,6 +104,7 @@ def test_end_to_end_llm_with_pruning():
 
 if __name__ == "__main__":
     test_cosine_math()
+    test_3000_table_names_matching()
     test_schema_pruning_logic()
     test_end_to_end_llm_with_pruning()
-    print("\n🎉 ALL SCHEMA PRUNER UNIT TESTS PASSED!")
+    print("\n🎉 ALL SCHEMA PRUNER & 3,000+ TABLE ON-DEMAND TESTS PASSED!")

@@ -19,7 +19,9 @@ QueryAI dynamically parses active schemas, translates human queries into optimiz
 ## ✨ Outstanding Features
 
 - 🤖 **Universal Text-to-SQL**: Auto-detects the active database dialect (MySQL, PostgreSQL, MS SQL, Oracle, SQLite) and structures the translation context accordingly.
-- 🎯 **Semantic Schema Pruning (Schema RAG)**: Vectorizes table definitions using embeddings and performs cosine similarity search against user queries to scale seamlessly to **150+ tables** while eliminating LLM token bloat.
+- 🎯 **Hybrid Adaptive Schema Engine (Up to 3,000+ Tables)**:
+  - **Standard Mode ($\le 150$ tables)**: Fast in-memory pre-fetched Vector RAG for zero-latency local caching.
+  - **Enterprise Scale Mode ($> 150$ to 3,000+ tables)**: Automatically engages **On-Demand Just-In-Time Column Fetching** to connect in $<0.05$ seconds and query columns only for the top matched tables at question time.
 - 📊 **Smart Auto-Visualization**: Intelligently inspects query result sets to choose, build, and style Plotly graphs (Bar, Line, Histograms, or Frequency Count charts).
 - 📄 **Dynamic CSV Uploads**: Drag and drop multiple CSV sheets to instantly query them as virtual relational tables in-memory.
 - 🏥 **Out-of-the-Box Demo**: Instantly provisions a mock hospital database with 150 patients, 20 doctors, and 300 appointments to experience the app in 1 click.

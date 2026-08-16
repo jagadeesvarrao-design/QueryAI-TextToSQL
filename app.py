@@ -18,6 +18,8 @@ from utils.connection_manager import (
     extract_schema_string,
     extract_schema_dict,
     extract_table_schemas_dict,
+    extract_table_column_fingerprints,
+    get_foreign_key_graph,
     get_table_names_from_engine,
     get_table_preview_from_engine,
     run_query_on_engine,
@@ -454,6 +456,8 @@ defaults = {
     "schema_str": "",
     "schema_dict": {},
     "table_schemas_dict": {},
+    "table_fingerprints": {},
+    "fk_graph": {},
     "table_names": [],
     "query_history": [],
     "last_sql": "",
@@ -506,6 +510,8 @@ def do_connect(config: ConnectionConfig, csv_tables=None):
     st.session_state.schema_str = extract_schema_string(engine)
     st.session_state.schema_dict = extract_schema_dict(engine)
     st.session_state.table_schemas_dict = extract_table_schemas_dict(engine)
+    st.session_state.table_fingerprints = extract_table_column_fingerprints(engine)
+    st.session_state.fk_graph = get_foreign_key_graph(engine)
     st.session_state.table_names = get_table_names_from_engine(engine)
     # Clear previous results when switching DB
     st.session_state.last_df = None
@@ -1133,13 +1139,17 @@ if run_btn and user_question.strip():
 
         all_tbls = st.session_state.get("table_names") or []
         pre_fetched = st.session_state.get("table_schemas_dict") or {}
+        fingerprints = st.session_state.get("table_fingerprints") or {}
+        fk_graph = st.session_state.get("fk_graph") or {}
 
-        # Resolve schema (uses fast in-memory RAG for <=150 tables, or On-Demand JIT fetching for >150 tables)
+        # Resolve schema (uses fast in-memory RAG for <=150 tables, or Column Fingerprint JIT fetching for >150 tables)
         effective_schema_str, _ = get_effective_schema(
             question=question,
             engine=st.session_state.engine,
             all_table_names=all_tbls,
             pre_fetched_schemas=pre_fetched,
+            table_fingerprints=fingerprints,
+            fk_graph=fk_graph,
             csv_tables=st.session_state.csv_tables,
             top_k=7
         )

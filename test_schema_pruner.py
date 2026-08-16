@@ -12,12 +12,16 @@ from utils.schema_pruner import (
     _cosine_similarity, 
     _keyword_similarity,
     match_relevant_table_names,
+    match_tables_with_fingerprints,
+    expand_with_foreign_key_bridges,
     get_effective_schema,
 )
 from utils.connection_manager import (
     ConnectionConfig,
     build_engine,
     extract_table_schemas_dict,
+    extract_table_column_fingerprints,
+    get_foreign_key_graph,
     get_all_table_names,
     fetch_columns_for_specific_tables,
 )
@@ -33,6 +37,42 @@ def test_cosine_math():
     assert abs(_cosine_similarity(v1, v2) - 1.0) < 1e-5
     assert abs(_cosine_similarity(v1, v3) - 0.0) < 1e-5
     print("✅ Cosine math passed!")
+
+
+def test_column_fingerprint_matching():
+    print("Testing Column Fingerprint matching (Pillar 1)...")
+    # Simulate cryptic enterprise table names where column names hold the answer
+    fingerprints = {
+        "VBAK_HDR": "vbeln, erdat, netwr, waerk, kunnr",
+        "VBAP_ITM": "vbeln, posnr, matnr, kwmeng, discount_percentage",
+        "KNA1_CUST": "kunnr, name1, ort01, land1",
+        "MARA_MAT": "matnr, mtart, matkl, meins",
+    }
+    
+    # Query mentions "discount" (which only exists in VBAP_ITM column list, not table name)
+    q = "Show customers with discount higher than 15%"
+    matched = match_tables_with_fingerprints(q, fingerprints, top_k=2)
+    print(f"Fingerprint Query: '{q}' -> Matched: {matched}")
+    assert "VBAP_ITM" in matched, "Expected 'VBAP_ITM' in matched tables due to 'discount_percentage' column!"
+    print("✅ Column Fingerprint matching passed!")
+
+
+def test_foreign_key_bridge_expansion():
+    print("Testing Foreign Key Bridge Auto-Expansion (Pillar 2)...")
+    # Graph: doctors <-> appointments <-> billing
+    fk_graph = {
+        "doctors": {"appointments"},
+        "appointments": {"doctors", "patients", "billing"},
+        "billing": {"appointments"},
+        "patients": {"appointments"},
+    }
+    
+    # User query picked 'doctors' and 'billing' (bridge 'appointments' was missing)
+    initial_selection = ["doctors", "billing"]
+    expanded = expand_with_foreign_key_bridges(initial_selection, fk_graph)
+    print(f"FK Expansion: Initial {initial_selection} -> Expanded: {expanded}")
+    assert "appointments" in expanded, "Expected 'appointments' bridge to be auto-added!"
+    print("✅ Foreign Key Bridge Auto-Expansion passed!")
 
 
 def test_3000_table_names_matching():
@@ -104,7 +144,9 @@ def test_end_to_end_llm_with_pruning():
 
 if __name__ == "__main__":
     test_cosine_math()
+    test_column_fingerprint_matching()
+    test_foreign_key_bridge_expansion()
     test_3000_table_names_matching()
     test_schema_pruning_logic()
     test_end_to_end_llm_with_pruning()
-    print("\n🎉 ALL SCHEMA PRUNER & 3,000+ TABLE ON-DEMAND TESTS PASSED!")
+    print("\n🎉 ALL 6 ANTI-HALLUCINATION & 3,000+ TABLE ON-DEMAND TESTS PASSED!")

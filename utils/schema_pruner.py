@@ -156,54 +156,117 @@ def prune_schema(
     return pruned_schema, ordered_selected
 
 
+def match_tables_with_fingerprints(
+    question: str,
+    fingerprints: dict[str, str],
+    top_k: int = 7
+) -> list[str]:
+    """
+    Pillar 1: Precision Schema Retrieval using Column Fingerprints.
+    Indexes 'Table: name. Columns: col1, col2...' for all 3,000+ tables.
+    Solves both the cryptic name problem and the hidden column problem.
+    """
+    if not fingerprints:
+        return []
+    if len(fingerprints) <= top_k:
+        return list(fingerprints.keys())
+
+    scores: dict[str, float] = {}
+    q_lower = question.lower()
+    q_words = set(re.findall(r'\w+', q_lower))
+
+    # Try dense semantic embedding
+    try:
+        q_vec = _embed_text(question)
+        for tname, cols in fingerprints.items():
+            cache_key = f"fp_{tname}_{hash(cols)}"
+            if cache_key in _EMBEDDINGS_CACHE:
+                t_vec = _EMBEDDINGS_CACHE[cache_key]
+            else:
+                summary = f"Table: {tname}. Columns: {cols}"
+                t_vec = _embed_text(summary)
+                _EMBEDDINGS_CACHE[cache_key] = t_vec
+
+            sim = _cosine_similarity(q_vec, t_vec)
+            
+            # Exact table name in question boost
+            if tname.lower() in q_lower:
+                sim += 0.4
+            
+            # Specific column name in question boost
+            col_tokens = set(re.findall(r'\w+', cols.lower()))
+            overlap = q_words.intersection(col_tokens)
+            if overlap:
+                sim += 0.15 * len(overlap)
+                
+            scores[tname] = sim
+    except Exception:
+        # Fast lexical hybrid scoring
+        for tname, cols in fingerprints.items():
+            t_lower = tname.lower()
+            score = 0.0
+            if t_lower in q_lower:
+                score += 4.0
+            col_tokens = set(re.findall(r'\w+', cols.lower()))
+            overlap = q_words.intersection(col_tokens)
+            score += len(overlap) * 2.0
+            scores[tname] = score
+
+    ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+    return [t[0] for t in ranked[:top_k]]
+
+
 def match_relevant_table_names(
     question: str, 
     all_table_names: list[str], 
     top_k: int = 7
 ) -> list[str]:
     """
-    Given 3,000+ table names, rank and match the top_k most relevant table names
-    to the user's natural language question without needing column metadata.
+    Given a list of table names, match the top_k most relevant.
     """
-    if not all_table_names:
-        return []
-    if len(all_table_names) <= top_k:
-        return list(all_table_names)
+    # Create simple identity fingerprints {table_name: table_name}
+    fp = {t: t for t in all_table_names}
+    return match_tables_with_fingerprints(question, fp, top_k=top_k)
 
-    scores: dict[str, float] = {}
-    
-    # Try vector embedding on table names
-    try:
-        q_vec = _embed_text(question)
-        for tname in all_table_names:
-            cache_key = f"name_{tname}"
-            if cache_key in _EMBEDDINGS_CACHE:
-                t_vec = _EMBEDDINGS_CACHE[cache_key]
-            else:
-                t_vec = _embed_text(f"Database table: {tname}")
-                _EMBEDDINGS_CACHE[cache_key] = t_vec
-                
-            sim = _cosine_similarity(q_vec, t_vec)
-            # Direct word match boost
-            if tname.lower() in question.lower():
-                sim += 0.5
-            scores[tname] = sim
-    except Exception:
-        # Fast lexical keyword fallback
-        q_lower = question.lower()
-        q_words = set(re.findall(r'\w+', q_lower))
-        for tname in all_table_names:
-            t_lower = tname.lower()
-            score = 0.0
-            if t_lower in q_lower:
-                score += 3.0
-            t_words = set(re.findall(r'\w+', t_lower))
-            overlap = q_words.intersection(t_words)
-            score += len(overlap)
-            scores[tname] = score
 
-    ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)
-    return [t[0] for t in ranked[:top_k]]
+def expand_with_foreign_key_bridges(
+    selected_tables: list[str],
+    fk_graph: dict[str, set[str]],
+    max_bridges: int = 2
+) -> list[str]:
+    """
+    Pillar 2: Foreign Key Graph Auto-Expansion.
+    If Table A and Table B are selected but not directly connected by a foreign key,
+    finds an intermediate bridge table C (e.g. 'appointments' linking 'doctors' & 'billing')
+    and includes it automatically so Gemini never writes broken/hallucinated JOINs.
+    """
+    if not fk_graph or len(selected_tables) < 2:
+        return selected_tables
+
+    current_set = set(selected_tables)
+    added_bridges = []
+
+    # Check all pairs in selected_tables
+    for i in range(len(selected_tables)):
+        for j in range(i + 1, len(selected_tables)):
+            t1 = selected_tables[i]
+            t2 = selected_tables[j]
+
+            # If t1 and t2 already share a direct FK, no bridge needed
+            if t2 in fk_graph.get(t1, set()) or t1 in fk_graph.get(t2, set()):
+                continue
+
+            # Search for a 1-hop bridge table C that connects both t1 and t2
+            t1_neighbors = fk_graph.get(t1, set())
+            t2_neighbors = fk_graph.get(t2, set())
+            common_neighbors = t1_neighbors.intersection(t2_neighbors)
+
+            for bridge in common_neighbors:
+                if bridge not in current_set and len(added_bridges) < max_bridges:
+                    added_bridges.append(bridge)
+                    current_set.add(bridge)
+
+    return selected_tables + added_bridges
 
 
 def get_effective_schema(
@@ -211,24 +274,40 @@ def get_effective_schema(
     engine,
     all_table_names: list[str],
     pre_fetched_schemas: dict[str, str] = None,
+    table_fingerprints: dict[str, str] = None,
+    fk_graph: dict[str, set[str]] = None,
     csv_tables: dict = None,
     top_k: int = 7
 ) -> tuple[str, list[str]]:
     """
-    Hybrid Schema Engine:
-    - If <= 150 tables and pre_fetched_schemas available: Uses fast in-memory Schema RAG.
-    - If > 150 tables (3,000+ tables): Performs Just-In-Time On-Demand Column Fetching!
+    Anti-Hallucination Hybrid Schema Engine:
+    - Mode 1 (<= 150 tables): Fast in-memory Schema RAG + FK Auto-Expansion.
+    - Mode 2 (> 150 to 3,000+ tables): Column Fingerprint Matching + On-Demand Targeted Column Fetching + FK Auto-Expansion.
     """
     from utils.connection_manager import fetch_columns_for_specific_tables
 
-    # Mode 1: In-Memory Pre-Fetched Schema (<150 tables)
+    # Mode 1: In-Memory Pre-Fetched Schema (<= 150 tables)
     if pre_fetched_schemas and len(pre_fetched_schemas) > 0:
-        return prune_schema(question, pre_fetched_schemas, top_k=top_k)
+        pruned_schema_str, matched_names = prune_schema(question, pre_fetched_schemas, top_k=top_k)
+        if fk_graph:
+            expanded_names = expand_with_foreign_key_bridges(matched_names, fk_graph)
+            if len(expanded_names) > len(matched_names):
+                # Pull in the extra bridge tables
+                extra_schemas = [pre_fetched_schemas[t] for t in expanded_names if t in pre_fetched_schemas]
+                return "\n\n".join(extra_schemas), expanded_names
+        return pruned_schema_str, matched_names
 
     # Mode 2: On-Demand Just-In-Time Fetching (3,000+ tables)
-    matched_names = match_relevant_table_names(question, all_table_names, top_k=top_k)
+    if table_fingerprints:
+        matched_names = match_tables_with_fingerprints(question, table_fingerprints, top_k=top_k)
+    else:
+        matched_names = match_relevant_table_names(question, all_table_names, top_k=top_k)
+
+    # Apply FK Bridge expansion
+    if fk_graph:
+        matched_names = expand_with_foreign_key_bridges(matched_names, fk_graph)
+
     dynamic_schemas = fetch_columns_for_specific_tables(engine, matched_names, csv_tables=csv_tables)
-    
     final_schema_str = "\n\n".join(dynamic_schemas.values())
     return final_schema_str, matched_names
 
